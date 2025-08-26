@@ -1,0 +1,60 @@
+<div class="beautiful-heart"></div>
+
+<style>
+.beautiful-heart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 40px auto;
+  background: linear-gradient(135deg, #ff6ec7, #ff2e63, #ff8fab);
+  transform: rotate(-45deg);
+  border-radius: 8px;
+  box-shadow:
+    0 0 15px rgba(255, 110, 199, 0.7),
+    0 0 25px rgba(255, 46, 99, 0.6),
+    0 0 35px rgba(255, 143, 171, 0.5);
+  animation: beat 1.2s infinite ease-in-out;
+}
+
+/* 上面的两个圆形组成爱心 */
+.beautiful-heart::before,
+.beautiful-heart::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: inherit;
+  border-radius: 50%;
+  box-shadow: inherit;
+}
+
+/* 左半圆 */
+.beautiful-heart::before {
+  top: -60px;
+  left: 0;
+}
+
+/* 右半圆 */
+.beautiful-heart::after {
+  top: 0;
+  left: 60px;
+}
+
+/* 心跳动画 */
+@keyframes beat {
+  0%, 100% {
+    transform: rotate(-45deg) scale(1);
+    box-shadow:
+      0 0 15px rgba(255, 110, 199, 0.7),
+      0 0 25px rgba(255, 46, 99, 0.6),
+      0 0 35px rgba(255, 143, 171, 0.5);
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.15);
+    box-shadow:
+      0 0 20px rgba(255, 110, 199, 0.9),
+      0 0 30px rgba(255, 46, 99, 0.8),
+      0 0 40px rgba(255, 143, 171, 0.7);
+  }
+}
+</style>
