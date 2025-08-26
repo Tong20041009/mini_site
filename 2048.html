@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>2048（白色版）</title>
+<style>
+  :root{
+    --bg:#faf8ef; --panel:#f8f5e9; --grid:#bbada0; --cell:#cdc1b4; --txt:#776e65;
+    --muted:#8f8a84; --btn:#8f7a66;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,system-ui}
+  .wrap{max-width:520px;margin:0 auto;padding:18px}
+  h1{margin:0 0 10px;font-size:28px;letter-spacing:.5px}
+  .top{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .score{background:var(--panel);border-radius:10px;padding:8px 14px;min-width:108px;text-align:center;border:1px solid #e8e2d6}
+  .score .label{font-size:12px;color:var(--muted)}
+  .btn{background:var(--btn);color:#fff;border:0;border-radius:10px;padding:9px 14px;cursor:pointer}
+  .board{
+    margin-top:14px;background:var(--grid);border-radius:12px;padding:10px;
+    aspect-ratio:1/1;touch-action:none;overscroll-behavior:contain;
+  }
+  .grid{
+    display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);
+    gap:10px;height:100%;
+  }
+  .cell{
+    background:var(--cell);border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:32px;color:#f9f6f2;user-select:none;
+  }
+  /* 颜色表（接近经典 2048） */
+  .n0   { background:var(--cell); color:transparent }
+  .n2   { background:#eee4da; color:#776e65 }
+  .n4   { background:#ede0c8; color:#776e65 }
+  .n8   { background:#f2b179 }
+  .n16  { background:#f59563 }
+  .n32  { background:#f67c5f }
+  .n64  { background:#f65e3b }
+  .n128 { background:#edcf72; font-size:28px }
+  .n256 { background:#edcc61; font-size:28px }
+  .n512 { background:#edc850; font-size:28px }
+  .n1024{ background:#edc53f; font-size:24px }
+  .n2048{ background:#edc22e; font-size:24px }
+  .end{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(250,248,239,.75);backdrop-filter:blur(2px);
+  }
+  .panel{
+    background:#fff;border:1px solid #eee0c9;border-radius:12px;padding:18px 16px;
+    text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.08)
+  }
+  .panel h2{margin:0 0 8px}
+  .tip{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>2048</h1>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="score"><div class="label">分数</div><div id="score">0</div></div>
+      <div class="score"><div class="label">最高</div><div id="best">0</div></div>
+      <button class="btn" id="new">新游戏</button>
+    </div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <p class="tip">操作：方向键 / 触屏滑动。合成到 2048！</p >
+</div>
+
+<div class="end" id="end">
+  <div class="panel">
+    <h2 id="endTitle">Game Over</h2>
+    <button class="btn" id="again">再来一局</button>
+  </div>
+</div>
+
+<script>
+const SIZE=4;
+let grid, score=0, best=+localStorage.getItem('best2048')||0;
+const gridEl=document.getElementById('grid'), scoreEl=document.getElementById('score'),
+      bestEl=document.getElementById('best'), endEl=document.getElementById('end'),
+      endTitle=document.getElementById('endTitle');
+bestEl.textContent=best;
+
+function reset(){
+  grid=Array.from({length:SIZE},()=>Array(SIZE).fill(0));
+  score=0; endEl.style.display='none';
+  addRandom(); addRandom(); render();
+}
+function emptyCells(){
+  const out=[]; for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++) if(!grid[r][c]) out.push([r,c]); return out;
+}
+function addRandom(){
+  const cells=emptyCells(); if(!cells.length) return;
+  const [r,c]=cells[Math.floor(Math.random()*cells.length)];
+  grid[r][c]=Math.random()<0.9?2:4;
+}
+function render(){
+  let html='';
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const v=grid[r][c];
+      html += `<div class="cell n${v}">${v?v:''}</div>`;
+    }
+  }
+  gridEl.innerHTML=html;
+  scoreEl.textContent=score;
+  if(score>best){best=score;localStorage.setItem('best2048',best);bestEl.textContent=best;}
+}
+function line(arr){
+  const a=arr.filter(v=>v);
+  for(let i=0;i<a.length-1;i++){
+    if(a[i]===a[i+1]){ a[i]*=2; score+=a[i]; a[i+1]=0; i++; }
+  }
+  return a.filter(v=>v);
+}
+function move(dir){
+  const before=JSON.stringify(grid);
+  if(dir==='left'||dir==='right'){
+    for(let r=0;r<SIZE;r++){
+      let row=grid[r].slice();
+      if(dir==='right') row.reverse();
+      row=line(row); while(row.length<SIZE) row.push(0);
+      if(dir==='right') row.reverse();
+      grid[r]=row;
+    }
+  }else{
+    for(let c=0;c<SIZE;c++){
+      let col=grid.map(r=>r[c]);
+      if(dir==='down') col.reverse();
+      col=line(col); while(col.length<SIZE) col.push(0);
+      if(dir==='down') col.reverse();
+      for(let r=0;r<SIZE;r++) grid[r][c]=col[r];
+    }
+  }
+  if(before!==JSON.stringify(grid)){ addRandom(); render(); checkEnd(); }
+}
+function hasMoves(){
+  if(emptyCells().length) return true;
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const v=grid[r][c];
+    if(r+1<SIZE && grid[r+1][c]===v) return true;
+    if(c+1<SIZE && grid[r][c+1]===v) return true;
+  }
+  return false;
+}
+function checkEnd(){
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++) if(grid[r][c]===2048){
+    endTitle.textContent='🎉 你赢了！'; endEl.style.display='flex'; return;
+  }
+  if(!hasMoves()){ endTitle.textContent='Game Over'; endEl.style.display='flex'; }
+}
+
+// 键盘控制
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(['arrowleft','a'].includes(k)) move('left');
+  if(['arrowright','d'].includes(k)) move('right');
+  if(['arrowup','w'].includes(k)) move('up');
+  if(['arrowdown','s'].includes(k)) move('down');
+});
+
+// === 手机触控支持（不会让整页滚动） ===
+let sx=0, sy=0, swiping=false;
+const board=document.getElementById('board');
+
+board.addEventListener('touchstart',e=>{
+  const t=e.touches[0]; sx=t.clientX; sy=t.clientY; swiping=false;
+},{passive:false});
+
+board.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const dx=t.clientX-sx, dy=t.clientY-sy;
+  if(!swiping && (Math.abs(dx)>8 || Math.abs(dy)>8)) swiping=true;
+  if(swiping) e.preventDefault();
+},{passive:false});
+
+board.addEventListener('touchend',e=>{
+  if(!swiping) return;
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+  else move(dy>0?'down':'up');
+  e.preventDefault();
+},{passive:false});
+
+document.getElementById('new').onclick=reset;
+document.getElementById('again').onclick=reset;
+reset();
+</script>
+</body>
+</html>
