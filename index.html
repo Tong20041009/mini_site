@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>我的小网页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --bg:#fafbff; --fg:#222; --card:#fff; --muted:#666; --pri:#3a6ff7; }
+    [data-theme="dark"] { --bg:#0f1115; --fg:#e6e6e6; --card:#151922; --muted:#9aa3af; --pri:#6ea8ff; }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--fg)}
+    .container{max-width:980px;margin:0 auto;padding:0 16px}
+    .nav{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid #e5e7eb}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:56px}
+    .brand{font-weight:700;text-decoration:none;color:var(--fg)}
+    .nav a{margin-left:14px;text-decoration:none;color:var(--fg)}
+    .btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:10px 14px;text-decoration:none;display:inline-block}
+    .hero{padding:64px 0;text-align:center}
+    .hero h1{margin:0 0 10px 0;font-size:36px}
+    .hero p{margin:0 0 18px 0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:28px 0}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+    .muted{color:var(--muted)}
+    .footer{border-top:1px solid #e5e7eb;color:var(--muted);text-align:center;padding:24px 0;margin-top:40px}
+    .section{padding:28px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    input,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;background:transparent;color:var(--fg)}
+    label{font-size:14px;color:var(--muted)}
+    #backTop{position:fixed;right:16px;bottom:16px;display:none}
+    .pill{padding:6px 10px;border:1px solid #d1d5db;border-radius:999px;font-size:13px}
+    .tools{display:flex;gap:8px;flex-wrap:wrap}
+    @media (max-width:640px){ .hero h1{font-size:28px} .nav a.hide-sm{display:none} }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href=" ">MySite</a >
+      <nav>
+        <a class="hide-sm" href="#about">关于</a >
+        <a class="hide-sm" href="#work">作品</a >
+        <a class="hide-sm" href="#contact">联系</a >
+        <button id="themeBtn" class="pill" aria-label="切换主题">🌙 深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <section class="hero">
+      <h1>你好，我是某某 👋</h1>
+      <p class="muted">这是我做的一个小网页：简洁、响应式、带深色模式。</p >
+      <a class="btn" href="#contact">联系我</a >
+    </section>
+
+    <section id="about" class="section">
+      <h2>关于我</h2>
+      <p class="muted">会写一点 Python、会做小工具，也能把点子变成页面。</p >
+      <div class="tools">
+        <span class="pill">Python</span>
+        <span class="pill">Flask</span>
+        <span class="pill">HTML</span>
+        <span class="pill">CSS</span>
+        <span class="pill">JavaScript</span>
+      </div>
+    </section>
+
+    <section id="work" class="section">
+      <h2>小作品</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>随机密码生成器</h3>
+          <p class="muted">一键生成 12~20 位强密码。</p >
+          <button class="btn" onclick="genPwd()">在线生成</button>
+          <p id="pwdOut" style="word-break:break-all;margin-top:8px"></p >
+        </div>
+        <div class="card">
+          <h3>待办清单（本地）</h3>
+          <div class="row">
+            <input id="todoInput" placeholder="输入待办…">
+            <button class="btn" onclick="addTodo()">添加</button>
+          </div>
+          <ul id="todoList" style="padding-left:18px;margin:8px 0 0 0"></ul>
+          <p class="muted">数据存本地浏览器，不会上传。</p >
+        </div>
+        <div class="card">
+          <h3>关于这个页面</h3>
+          <p class="muted">纯静态，一份 <code>index.html</code> 就能跑；支持深色模式和返回顶部。</p >
+          <a class="btn" href="#top">回到顶部</a >
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>联系我</h2>
+      <form onsubmit="sendMail(event)">
+        <div class="row">
+          <label style="flex:1">姓名
+            <input id="name" required>
+          </label>
+          <label style="flex:1">邮箱
+            <input id="email" type="email" required>
+          </label>
+        </div>
+        <label>留言
+          <textarea id="msg" rows="4" placeholder="想聊点什么？" required></textarea>
+        </label>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" type="submit">发送</button>
+          <span class="muted">* 将通过你的本地邮箱应用发送</span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© <span id="y"></span> MySite · 纯静态小网页</div>
+  </footer>
+
+  <a id="backTop" class="btn" href="#top" aria-label="返回顶部">↑</a >
+
+  <script>
+    // 年份 & 返回顶部按钮
+    document.getElementById('y').textContent = new Date().getFullYear();
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', ()=>{ backTop.style.display = window.scrollY>300?'inline-block':'none'; });
+
+    // 深色模式切换
+    const themeBtn = document.getElementById('themeBtn');
+    const saved = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+    document.documentElement.setAttribute('data-theme', saved);
+    themeBtn.textContent = saved==='dark' ? '☀️ 浅色' : '🌙 深色';
+    themeBtn.onclick = ()=>{
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur==='dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeBtn.textContent = next==='dark' ? '☀️ 浅色' : '🌙 深色';
+    };
+
+    // 随机密码
+    function genPwd(){
+      const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*?';
+      const len = 16;
+      let s=''; for(let i=0;i<len;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+      document.getElementById('pwdOut').textContent = s;
+    }
+
+    // 待办（localStorage）
+    const key='mini_todos';
+    function loadTodos(){ return JSON.parse(localStorage.getItem(key)||'[]'); }
+    function saveTodos(t){ localStorage.setItem(key, JSON.stringify(t)); }
+    function renderTodos(){
+      const ul=document.getElementById('todoList'); ul.innerHTML='';
+      loadTodos().forEach((t,i)=>{
+        const li=document.createElement('li');
+        li.innerHTML = `<label style="display:flex;gap:8px;align-items:center">
+          <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${i})">
+          <span style="${t.done?'text-decoration:line-through;opacity:.7':''}">${t.text}</span>
+          <button class="pill" onclick="delTodo(${i})">删除</button>
+        </label>`;
+        ul.appendChild(li);
+      });
+    }
+    function addTodo(){
+      const input=document.getElementById('todoInput'); const text=input.value.trim();
+      if(!text) return; const list=loadTodos(); list.push({text,done:false}); saveTodos(list); input.value=''; renderTodos();
+    }
+    function toggleTodo(i){ const list=loadTodos(); list[i].done=!list[i].done; saveTodos(list); renderTodos(); }
+    function delTodo(i){ const list=loadTodos(); list.splice(i,1); saveTodos(list); renderTodos(); }
+    renderTodos();
+
+    // 联系表单 → 调起本地邮件客户端
+    function sendMail(e){
+      e.preventDefault();
+      const name=document.getElementById('name').value.trim();
+      const email=document.getElementById('email').value.trim();
+      const msg=document.getElementById('msg').value.trim();
+      const subject=encodeURIComponent('网站联系：' + name);
+      const body=encodeURIComponent(`来自：${name}\n邮箱：${email}\n\n留言：\n${msg}`);
+      window.location.href = `mailto:yourname@example.com?subject=${subject}&body=${body}`;
+    }
+  </script>
+</body>
+</html>
