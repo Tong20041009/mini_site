@@ -1,0 +1,131 @@
+<!-- ========= Mini Games =========== -->
+<section id="games" class="games-wrap">
+  <h2>🎮 小游戏</h2>
+  <div class="games-grid">
+    <!-- Game 1: 反应力测试 -->
+    <div class="card">
+      <h3>反应力测试</h3>
+      <p class="muted">变绿就点，看你多快！</p >
+      <div id="rt-box" class="box">点击开始</div>
+      <div id="rt-info" class="muted"></div>
+    </div>
+
+    <!-- Game 2: 猜数字 -->
+    <div class="card">
+      <h3>猜数字（1~100）</h3>
+      <p class="muted">我想了一个数，来猜吧！</p >
+      <div>
+        <input id="g-input" type="number" min="1" max="100" placeholder="输入 1~100">
+        <button id="g-btn">猜</button>
+      </div>
+      <div id="g-hint" class="muted" style="margin-top:8px;"></div>
+      <button id="g-restart" class="link" style="display:none;margin-top:6px;">再来一局</button>
+    </div>
+
+    <!-- Game 3: 石头剪刀布 -->
+    <div class="card">
+      <h3>石头剪刀布</h3>
+      <div class="rps-btns">
+        <button data-rps="石头">✊ 石头</button>
+        <button data-rps="剪刀">✌️ 剪刀</button>
+        <button data-rps="布">🖐 布</button>
+      </div>
+      <div id="rps-out" class="muted" style="margin-top:8px;"></div>
+      <div id="rps-score" class="muted"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .games-wrap{max-width:980px;margin:40px auto;padding:0 16px}
+  .games-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .card{background:#151922;border:1px solid #232732;border-radius:14px;padding:16px}
+  .muted{color:#9aa3af}
+  .box{
+    user-select:none; display:flex; align-items:center; justify-content:center;
+    height:120px;border-radius:10px;border:1px dashed #2b3240;background:#1b2230;color:#9aa3af;cursor:pointer
+  }
+  .box.ready{background:#eab308;color:#0f1115} /* 黄：等待变绿 */
+  .box.go{background:#22c55e;color:#0f1115}    /* 绿：点！ */
+  .rps-btns button, #g-btn{
+    background:#3a6ff7;color:#fff;border:0;border-radius:10px;padding:8px 12px;margin:4px;cursor:pointer
+  }
+  input[type=number]{padding:8px;border-radius:8px;border:1px solid #2b3240;background:#0f1115;color:#e6e6e6}
+  .link{background:#2b3240;color:#e6e6e6;border:0;border-radius:10px;padding:6px 10px;cursor:pointer}
+</style>
+
+<script>
+/* ====== Game 1: 反应力测试 ====== */
+(()=>{
+  const box = document.getElementById('rt-box');
+  const info = document.getElementById('rt-info');
+  let timer, startAt, state='idle';
+  function resetUI(){ box.className='box'; box.textContent='点击开始'; info.textContent=''; state='idle'; }
+  function waitPhase(){
+    state='wait';
+    box.classList.add('ready'); box.textContent='变绿就点！';
+    const delay = 1000 + Math.random()*2000;
+    timer = setTimeout(()=>{
+      state='go'; startAt=performance.now();
+      box.classList.remove('ready'); box.classList.add('go'); box.textContent='点！点！点！';
+    }, delay);
+  }
+  box.addEventListener('click', ()=>{
+    if(state==='idle'){ waitPhase(); return; }
+    if(state==='wait'){ clearTimeout(timer); info.textContent='太着急了 😂 再来！'; resetUI(); return; }
+    if(state==='go'){
+      const t = Math.round(performance.now()-startAt);
+      info.textContent = `你的反应时间：${t} ms`;
+      resetUI();
+    }
+  });
+})();
+
+/* ====== Game 2: 猜数字 ====== */
+(()=>{
+  const input = document.getElementById('g-input');
+  const btn = document.getElementById('g-btn');
+  const hint = document.getElementById('g-hint');
+  const again = document.getElementById('g-restart');
+  let target = 1 + Math.floor(Math.random()*100), times = 0;
+
+  function restart(){
+    target = 1 + Math.floor(Math.random()*100);
+    times = 0; hint.textContent='新的一局开始～'; again.style.display='none'; input.value='';
+  }
+  btn.onclick = ()=>{
+    const v = Number(input.value);
+    if(!v || v<1 || v>100){ hint.textContent='请输入 1~100 的整数'; return; }
+    times++;
+    if(v===target){ hint.textContent=`🎉 猜对啦！用了 ${times} 次`; again.style.display='inline-block'; }
+    else if(v<target){ hint.textContent='再大一点 ↑'; }
+    else{ hint.textContent='再小一点 ↓'; }
+  };
+  again.onclick = restart;
+})();
+
+/* ====== Game 3: 石头剪刀布 ====== */
+(()=>{
+  const out = document.getElementById('rps-out');
+  const score = document.getElementById('rps-score');
+  let me=0, ai=0;
+  const map = ['石头','剪刀','布'];
+  function judge(a,b){ // 返回 1 我赢，-1 我输，0 平
+    if(a===b) return 0;
+    if((a==='石头'&&b==='剪刀')||(a==='剪刀'&&b==='布')||(a==='布'&&b==='石头')) return 1;
+    return -1;
+  }
+  document.querySelectorAll('[data-rps]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const mine = btn.dataset.rps;
+      const robot = map[Math.floor(Math.random()*3)];
+      const r = judge(mine, robot);
+      if(r>0){ me++; out.textContent = `你出 ${mine}，我出 ${robot} → 你赢了！`; }
+      else if(r<0){ ai++; out.textContent = `你出 ${mine}，我出 ${robot} → 我赢了～`; }
+      else{ out.textContent = `都出 ${mine} → 平局`; }
+      score.textContent = `比分：你 ${me} : ${ai} 电脑`;
+    };
+  });
+})();
+</script>
+<!-- ========= Mini Games END =========== -->
