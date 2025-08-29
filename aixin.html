@@ -3,16 +3,16 @@
 <style>
 .beautiful-heart {
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 40px auto;
+  width: 200px;   /* 放大 */
+  height: 200px;  /* 放大 */
+  margin: 150px auto; /* 往下移一点 */
   background: linear-gradient(135deg, #ff6ec7, #ff2e63, #ff8fab);
   transform: rotate(-45deg);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow:
-    0 0 15px rgba(255, 110, 199, 0.7),
-    0 0 25px rgba(255, 46, 99, 0.6),
-    0 0 35px rgba(255, 143, 171, 0.5);
+    0 0 25px rgba(255, 110, 199, 0.7),
+    0 0 35px rgba(255, 46, 99, 0.6),
+    0 0 45px rgba(255, 143, 171, 0.5);
   animation: beat 1.2s infinite ease-in-out;
 }
 
@@ -21,8 +21,8 @@
 .beautiful-heart::after {
   content: "";
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 200px;  /* 跟主容器一样大 */
+  height: 200px;
   background: inherit;
   border-radius: 50%;
   box-shadow: inherit;
@@ -30,31 +30,23 @@
 
 /* 左半圆 */
 .beautiful-heart::before {
-  top: -60px;
+  top: -100px; /* 调整位置 */
   left: 0;
 }
 
 /* 右半圆 */
 .beautiful-heart::after {
   top: 0;
-  left: 60px;
+  left: 100px;
 }
 
 /* 心跳动画 */
 @keyframes beat {
   0%, 100% {
     transform: rotate(-45deg) scale(1);
-    box-shadow:
-      0 0 15px rgba(255, 110, 199, 0.7),
-      0 0 25px rgba(255, 46, 99, 0.6),
-      0 0 35px rgba(255, 143, 171, 0.5);
   }
   50% {
     transform: rotate(-45deg) scale(1.15);
-    box-shadow:
-      0 0 20px rgba(255, 110, 199, 0.9),
-      0 0 30px rgba(255, 46, 99, 0.8),
-      0 0 40px rgba(255, 143, 171, 0.7);
   }
 }
 </style>
